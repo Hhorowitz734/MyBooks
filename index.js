@@ -6,6 +6,7 @@ const nbModal = document.querySelector('.nb-modal-content');
 const booksContainer = document.querySelector('.books-container');
 const addBtn = document.querySelector('#add-btn');
 const imgUpload = document.querySelector('#img-upload');
+let books = [];
 let bookDicts = []; //List for dict of all added books
 let currentStar = null;
 let currentImg = null;
@@ -24,8 +25,6 @@ imgUpload.addEventListener('change', function(){
     });
 })
 
-
-
 //Controls star rating system
 allStars.forEach((star, i) => {
     star.onclick = function(event){
@@ -41,7 +40,6 @@ allStars.forEach((star, i) => {
         currentStar = i + 1;
     }
 });
-//https://www.youtube.com/watch?v=lzK8vM_wdoY <-- USE THIS TO DISPLAY IMAGE LATER
 
 
 // Functions
@@ -65,6 +63,7 @@ function addBook(event){
     }
     scaleImg(currentImg, addBtn).then((scaledImg) => {
         nbDict['Image'] = scaledImg;
+        currentImg = null;
     }).catch((error) => {
         currentImg = null;
         console.log('error');
@@ -72,13 +71,18 @@ function addBook(event){
 
     //Creates new book element on main screen
     let newBook = document.createElement('div');
-    newBook.className = 'books';
+    newBook.className = 'book';
+    let nbButton = document.createElement('button');
+    nbButton.style.width = '100%';
+    nbButton.style.height = '100%';
+    nbButton.style.border = 'none';
+    nbButton.style.backgroundColor = 'transparent';
+    newBook.appendChild(nbButton);
     if (nbDict['Image'] == null){
         newBook.style.backgroundColor = `rgb(${Math.floor(Math.random() * 255)}, ${Math.floor(Math.random() * 255)}, ${Math.floor(Math.random() * 255)})`;
         let nbText = document.createElement('h3');
         nbText.innerText = nbDict['Title'];
-        nbText.style.padding = '1.7rem';
-        newBook.appendChild(nbText);
+        nbButton.appendChild(nbText);
     }
     else {
         newBook.style.backgroundImage = `url(${nbDict['Image']})`;
@@ -92,7 +96,8 @@ function addBook(event){
 
     //Adds dict to list of all book divs
     bookDicts.push(nbDict);
-    console.log(bookDicts);
+    books.push(nbButton);
+    createBookELS();
 }
 
 function scaleImg(image, element) {
@@ -128,4 +133,67 @@ function scaleImg(image, element) {
     });
 }
 
+function displayBook(event){
 
+    // Prevents reload
+    event.preventDefault();
+
+    //Sets proper values
+    let currDict; //The dictionary of the book we are trying to access
+    let bookIndex;
+    for (let [i, bookDict] of bookDicts.entries()){
+        if (bookDict['Title'] == event.path[0].innerText){
+            currDict = bookDict;
+            bookIndex = i;
+        }
+    }
+    
+    //Populates text boxes with previously entered data
+    document.getElementById('book-title').value = currDict['Title'];
+    document.getElementById('book-author').value = currDict['Author'];
+    document.getElementById('book-language').value = currDict['Language'];
+    document.getElementById('review').value = currDict['Review'];
+    //SET STARS HERE
+
+    
+    //Changes 'add' button to fix button
+    nbSubmitBtn.style.display = 'none';
+    nbSubmitBtn.style.pointerEvents = 'none';
+    let updateBtn = document.createElement('button');
+    updateBtn.className = 'nb-adds';
+    updateIcon = document.createElement('i');
+    updateIcon.className = "fa-solid fa-check"
+    updateBtn.appendChild(updateIcon);
+    document.querySelector('.book-inputs').appendChild(updateBtn);
+    
+    //Opens book window
+    nbDiv.style.pointerEvents = 'auto';
+    nbDiv.style.display = 'flex';
+
+    //Event listener waiting for form submission
+    updateBtn.addEventListener('click', (event) => {
+        event.preventDefault();
+        //Updates dictionary
+        currDict['Title'] = document.getElementById('book-title').value;
+        currDict['Author'] = document.getElementById('book-author').value;
+        currDict['Language'] = document.getElementById('book-language').value;
+        currDict['Review'] = document.getElementById('review').value;
+
+        bookDicts[bookIndex] = currDict;
+
+        //Fill in stars + image here
+
+        //Closes book window
+        nbDiv.style.pointerEvents = 'none';
+        nbDiv.style.display = 'none';
+        updateBtn.remove();
+    });
+}
+
+//Creates book event listeners
+function createBookELS(){
+    books.forEach((bookDiv) => {
+        console.log(bookDiv);
+        bookDiv.addEventListener('click', displayBook);
+    });    
+}
