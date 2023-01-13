@@ -40,7 +40,8 @@ header {
     background-color: rgba(0, 0, 0, 0.6);
     position: absolute;
     top: 0;
-    display: flex;
+    display: none;
+    pointer-events: none;
     justify-content: center;
     align-items: center;
 }

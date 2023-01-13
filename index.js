@@ -4,11 +4,16 @@ const nbSubmitBtn = document.querySelector('#submit-nb');
 const nbDiv = document.querySelector('.bg-modal');
 const nbModal = document.querySelector('.nb-modal-content');
 const booksContainer = document.querySelector('.books-container');
+const addBtn = document.querySelector('#add-btn');
 let bookDicts = []; //List for dict of all added books
+let currentStar = null;
 
 // Event handlers
 nbSubmitBtn.addEventListener('click', addBook)
-
+addBtn.addEventListener('click', () => {
+    nbDiv.style.pointerEvents = 'auto';
+    nbDiv.style.display = 'flex';
+});
 
 
 
@@ -25,6 +30,7 @@ allStars.forEach((star, i) => {
                 star.innerHTML = '&#9734;';
             }
         });
+        currentStar = i + 1;
     }
 });
 //https://www.youtube.com/watch?v=lzK8vM_wdoY <-- USE THIS TO DISPLAY IMAGE LATER
@@ -41,9 +47,14 @@ function addBook(event){
         'Author': document.getElementById('book-author').value,
         'Language': document.getElementById('book-language').value,
         'Review': document.getElementById('review').value,
-        'Stars': 5, //Figure out how to actually put real star value here
         'Image': null //Put picture here later 
     };
+    if (currentStar != null){
+        nbDict['Stars'] = currentStar;
+    }
+    else {
+        nbDict['Stars'] = 0;
+    }
 
     //Creates new book element on main screen
     let newBook = document.createElement('div');
@@ -65,4 +76,6 @@ function addBook(event){
     nbDiv.style.display = 'none';
 
     //Adds dict to list of all book divs
+    bookDicts.push(nbDict);
+    console.log(bookDicts);
 }
