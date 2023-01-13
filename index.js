@@ -5,8 +5,10 @@ const nbDiv = document.querySelector('.bg-modal');
 const nbModal = document.querySelector('.nb-modal-content');
 const booksContainer = document.querySelector('.books-container');
 const addBtn = document.querySelector('#add-btn');
+const imgUpload = document.querySelector('#img-upload');
 let bookDicts = []; //List for dict of all added books
 let currentStar = null;
+let currentImg = null;
 
 // Event handlers
 nbSubmitBtn.addEventListener('click', addBook)
@@ -14,7 +16,13 @@ addBtn.addEventListener('click', () => {
     nbDiv.style.pointerEvents = 'auto';
     nbDiv.style.display = 'flex';
 });
-
+imgUpload.addEventListener('change', function(){
+    const reader = new FileReader();
+    reader.readAsDataURL(imgUpload.files[0])
+    reader.addEventListener('load', () => {
+        currentImg = reader.result;
+    });
+})
 
 
 
@@ -47,7 +55,7 @@ function addBook(event){
         'Author': document.getElementById('book-author').value,
         'Language': document.getElementById('book-language').value,
         'Review': document.getElementById('review').value,
-        'Image': null //Put picture here later 
+        'Image': currentImg 
     };
     if (currentStar != null){
         nbDict['Stars'] = currentStar;
@@ -55,6 +63,12 @@ function addBook(event){
     else {
         nbDict['Stars'] = 0;
     }
+    scaleImg(currentImg, addBtn).then((scaledImg) => {
+        nbDict['Image'] = scaledImg;
+    }).catch((error) => {
+        currentImg = null;
+        console.log('error');
+    })
 
     //Creates new book element on main screen
     let newBook = document.createElement('div');
@@ -67,7 +81,8 @@ function addBook(event){
         newBook.appendChild(nbText);
     }
     else {
-        console.log('here'); //ADD IMAGE TO BACKGROUND HERE
+        newBook.style.backgroundImage = `url(${nbDict['Image']})`;
+        newBook.style.backgroundSize = 'cover';
     }
     booksContainer.appendChild(newBook);
 
@@ -79,3 +94,38 @@ function addBook(event){
     bookDicts.push(nbDict);
     console.log(bookDicts);
 }
+
+function scaleImg(image, element) {
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    const img = new Image();
+
+    return new Promise((resolve, reject) => {
+        img.src = image;
+        img.onload = () => {
+            const elementRatio = element.clientWidth / element.clientHeight;
+            const imgRatio = img.width / img.height;
+
+            let width = element.clientWidth;
+            let height = element.clientHeight;
+
+            if (imgRatio < elementRatio) {
+                width = height * imgRatio;
+            } else {
+                height = width / imgRatio;
+            }
+
+            canvas.width = width;
+            canvas.height = height;
+            console.log(canvas.width, canvas.height);
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+            const scaledImg = canvas.toDataURL();
+            resolve(scaledImg);
+        }
+        img.onerror = (error) => {
+            reject(error);
+        }
+    });
+}
+
+

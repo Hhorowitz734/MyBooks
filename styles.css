@@ -11,6 +11,7 @@ header {
 
 .books-container {
     display: flex;
+    flex-wrap: wrap;
 }
 
 .books{
