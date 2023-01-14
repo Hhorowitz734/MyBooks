@@ -13,6 +13,26 @@ let currentImg = null;
 
 // Event handlers
 nbSubmitBtn.addEventListener('click', addBook)
+nbModal.addEventListener('click', (event) => {
+    event.stopPropagation();
+})
+nbDiv.addEventListener('click', () => {
+    // Removes modal
+    nbDiv.style.pointerEvents = 'none';
+    nbDiv.style.display = 'none';
+
+    //Resets all text boxes and star
+    document.getElementById('book-title').value = '';
+    document.getElementById('book-author').value = '';
+    document.getElementById('book-language').value = '';
+    document.getElementById('review').value = '';
+    allStars.forEach((star) => {
+        star.innerHTML = '&#9734;'
+    });
+    currentStar = null;
+    currentImg = null;
+    imgUpload.value = "";
+})
 addBtn.addEventListener('click', () => {
     nbDiv.style.pointerEvents = 'auto';
     nbDiv.style.display = 'flex';
@@ -66,7 +86,6 @@ function addBook(event){
         currentImg = null;
     }).catch((error) => {
         currentImg = null;
-        console.log('error');
     })
 
     //Creates new book element on main screen
@@ -78,11 +97,11 @@ function addBook(event){
     nbButton.style.border = 'none';
     nbButton.style.backgroundColor = 'transparent';
     newBook.appendChild(nbButton);
+    let nbText = document.createElement('h3');
+    nbText.innerText = nbDict['Title'];
+    nbButton.appendChild(nbText);
     if (nbDict['Image'] == null){
         newBook.style.backgroundColor = `rgb(${Math.floor(Math.random() * 255)}, ${Math.floor(Math.random() * 255)}, ${Math.floor(Math.random() * 255)})`;
-        let nbText = document.createElement('h3');
-        nbText.innerText = nbDict['Title'];
-        nbButton.appendChild(nbText);
     }
     else {
         newBook.style.backgroundImage = `url(${nbDict['Image']})`;
@@ -135,7 +154,6 @@ function scaleImg(image, element) {
 
             canvas.width = width;
             canvas.height = height;
-            console.log(canvas.width, canvas.height);
             ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
             const scaledImg = canvas.toDataURL();
             resolve(scaledImg);
@@ -150,6 +168,7 @@ function displayBook(event){
 
     // Prevents reload
     event.preventDefault();
+    console.log(event);
 
     //Sets proper values
     let currDict; //The dictionary of the book we are trying to access
@@ -200,7 +219,7 @@ function displayBook(event){
         currDict['Review'] = document.getElementById('review').value;
 
         bookDicts[bookIndex] = currDict;
-
+        books[bookIndex].innerText = currDict['Title']; 
         //Fill in stars + image here
 
         //Closes book window
@@ -209,6 +228,7 @@ function displayBook(event){
         updateBtn.remove();
         nbSubmitBtn.style.display = 'block';
         nbSubmitBtn.style.pointerEvents = 'auto';
+
         // OKAY SO MAYBE INSTEAD OF THAT APPROACH, CREATE THE UPDATEBTN IN THE HTML and then what do is make is appear and dissapear as needed
     });
 }
@@ -216,7 +236,6 @@ function displayBook(event){
 //Creates book event listeners
 function createBookELS(){
     books.forEach((bookDiv) => {
-        console.log(bookDiv);
         bookDiv.addEventListener('click', displayBook);
     });    
 }
