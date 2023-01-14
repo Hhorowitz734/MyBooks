@@ -94,6 +94,19 @@ function addBook(event){
     nbDiv.style.pointerEvents = 'none';
     nbDiv.style.display = 'none';
 
+    //Resets all text boxes and star
+    document.getElementById('book-title').value = '';
+    document.getElementById('book-author').value = '';
+    document.getElementById('book-language').value = '';
+    document.getElementById('review').value = '';
+    allStars.forEach((star) => {
+        star.innerHTML = '&#9734;'
+    });
+    currentStar = null;
+    currentImg = null;
+    imgUpload.value = "";
+
+
     //Adds dict to list of all book divs
     bookDicts.push(nbDict);
     books.push(nbButton);
@@ -153,7 +166,14 @@ function displayBook(event){
     document.getElementById('book-author').value = currDict['Author'];
     document.getElementById('book-language').value = currDict['Language'];
     document.getElementById('review').value = currDict['Review'];
-    //SET STARS HERE
+    allStars.forEach((star, j) => {
+        if (j < currDict['Stars']){
+            star.innerHTML = '&#9733';
+        }
+        else {
+            star.innerHTML = '&#9734;';
+        }
+    });
 
     
     //Changes 'add' button to fix button
@@ -187,6 +207,9 @@ function displayBook(event){
         nbDiv.style.pointerEvents = 'none';
         nbDiv.style.display = 'none';
         updateBtn.remove();
+        nbSubmitBtn.style.display = 'block';
+        nbSubmitBtn.style.pointerEvents = 'auto';
+        // OKAY SO MAYBE INSTEAD OF THAT APPROACH, CREATE THE UPDATEBTN IN THE HTML and then what do is make is appear and dissapear as needed
     });
 }
 
